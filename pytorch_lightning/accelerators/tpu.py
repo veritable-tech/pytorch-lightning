@@ -20,7 +20,7 @@ from pytorch_lightning.accelerators.accelerator import Accelerator
 from pytorch_lightning.plugins.precision import MixedPrecisionPlugin
 from pytorch_lightning.plugins.training_type.single_tpu import SingleTPUPlugin
 from pytorch_lightning.plugins.training_type.tpu_spawn import TPUSpawnPlugin
-from pytorch_lightning.utilities import _XLA_AVAILABLE
+from pytorch_lightning.utilities import _XLA_AVAILABLE, GradClipAlgorithmType
 from pytorch_lightning.utilities.exceptions import MisconfigurationException
 
 if _XLA_AVAILABLE:
@@ -72,8 +72,12 @@ class TPUAccelerator(Accelerator):
             return xm.all_gather(tensor).view(-1, *tensor.shape)
         return tensor
 
-    def clip_gradients(self, optimizer: Optimizer, clip_val: Union[float, int], norm_type: float = 2.0):
+    def clip_gradients(
+        self, optimizer: Optimizer, clip_val: Union[float, int], norm_type: float = 2.0,
+        gradient_clip_algorithm: GradClipAlgorithmType = GradClipAlgorithmType.NORM
+    ) -> None:
 
+        assert gradient_clip_algorithm is GradClipAlgorithmType.NORM, "Only NORM gradient clipping is supported on TPU for now"
         model = self.lightning_module
         parameters = model.parameters()
 
