@@ -121,6 +121,9 @@ class PrecisionPlugin(Plugin):
         if clip_val <= 0:
             return
 
+        assert gradient_clip_algorithm is GradClipAlgorithmType.VALUE
+        # gradient_clip_algorithm = GradClipAlgorithmType.VALUE
+
         clip_grad_func = self.clip_grad_funcs[gradient_clip_algorithm]
         clip_grad_func(optimizer, clip_val)  # type: ignore
 
